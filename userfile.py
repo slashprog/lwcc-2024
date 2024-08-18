@@ -7,6 +7,7 @@ class Users:
         self.filename = filename
         self.sep = sep
         self._users = {}
+        
 
     def _parse(self):
         #self._users.clear()
