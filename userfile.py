@@ -7,7 +7,17 @@ class Users:
         self.filename = filename
         self.sep = sep
         self._users = {}
-        
+        self._in_context = False
+
+    def __enter__(self):
+        self._parse()
+        self._in_context = True
+        return self        
+
+    def __exit__(self, et, ev, tb):
+        self._store()
+        self._users.clear()
+        self._in_context = False
 
     def _parse(self):
         #self._users.clear()
@@ -29,24 +39,30 @@ class Users:
         self._users.clear()
 
     def add(self, username, password, fullname):
-        self._parse()
+        if not self._users: 
+            self._parse()
+            self._in_context = False
+
         if username in self._users:
             raise UserAlreadyExists(username)
 
         self._users[username] = dict(username=username, 
                                      password=password, 
                                      fullname=fullname)
-        self._store()
+        if not self._in_context: 
+            self._store()
 
     def modify(self, username, password=None, fullname=None):
-        self._parse()
-        rec = {}
+        if not self._users: 
+            self._parse()
+            self._in_context = False
         if username not in self._users:
             raise UserNotFound(username)
         
         if password is None and fullname is None:
             raise MissingPasswordOrFullname("either password / fullname must be passed")
-
+        
+        rec = {}
         if password is not None:
             if type(password) is str:
                 rec["password"] = password
@@ -61,23 +77,40 @@ class Users:
             else:
                 raise TypeError("fullname must be a valid string")
         
+       
         self._users[username].update(rec)
 
-        self._store()
+        if not self._in_context: 
+            self._store()
 
     def delete(self, username):
-        self._parse()
+        if not self._users: 
+            self._parse()
+            self._in_context = False
         if username not in self._users:
             raise UserNotFound(username)
         del self._users[username]
-        self._store()
+        if not self._in_context: 
+            self._store()
 
+    def get(self, username):
+        if not self._users: 
+            self._parse()
+            self._in_context = False
+        if username not in self.users:
+            raise UserNotFound(username)
+        
+        rec = self._users[username]
+        if not self._in_context: 
+            self._users.clear()
+        return rec
+        
 if __name__ == '__main__':
-    users = Users("users.csv")
-    try:
-        users.add("john", password="john123", fullname="John Doe")
-    except UserAlreadyExists as e:
-        print("Failed to add user john already exists")
+    #users = Users("users.csv")
+    #try:
+    #    users.add("john", password="john123", fullname="John Doe")
+    #except UserAlreadyExists as e:
+    #    print("Failed to add user john already exists")
 
     #users.modify("john", password="welcome")
     #users.modify("john", fullname="John Adams")
@@ -85,3 +118,8 @@ if __name__ == '__main__':
 
     #users.modify("john") # raise Error
     #users.modify("john", role="Developer") # raise Error
+
+    with Users("users.csv") as users:  # users = Users("users.csv").__enter__()
+        users.add("shivansh", password="secret", fullname="Shivansh Bansal")
+        users.add("antony", password="anto123", fullname="Marcel Antony")
+        users.delete("larry")
