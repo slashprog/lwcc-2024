@@ -1,4 +1,5 @@
 class UserNotFound(Exception): pass
+class InvalidField(Exception): pass
 
 class User:
     def __init__(self, name, password, fullname):
@@ -6,6 +7,16 @@ class User:
     
     def __str__(self):
         return f"<User: name='{self.name}', fullname='{self.fullname}'>"
+
+    def __getitem__(self, field):
+        if field == 'name':
+            return self.name
+        elif field == 'fullname':
+            return self.fullname
+        elif field == 'password':
+            return self.password
+        else:
+            raise InvalidField(field)
 
 class Users:
     def __init__(self, filename, sep=","):
@@ -33,10 +44,21 @@ class Users:
         else:
             raise UserNotFound(f"User {name=} does not exist.")
         
+    def __setitem__(self, key, value):
+        print(f"{key=}, {value=}")
+
+
 
 if __name__ == '__main__':
     users = Users("users.csv")
     print(users)
 
-    print(users['chandra']) # Users.__getitem__(users, "john")
-    
+    #print(users['chandra']) # Users.__getitem__(users, "john")
+    #print(users["john"]["fullname"])
+    u = users["john"]
+    print(u)
+    print(u["fullname"])
+    print(u["password"])
+
+    # Users.__setitem__(users, "sam", User(name="sam", password="sam123", fullname="Samuel Jones"))
+    users["sam"] = User(name="sam", password="sam123", fullname="Samuel Jones")
