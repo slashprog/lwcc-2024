@@ -1,16 +1,23 @@
 class CommandDispatch:
     def __init__(self, prompt):
-        pass # TODO
+        self.prompt = prompt
+        self.dispatch = {}
 
     def input(self, fn):
-        pass # TODO
+        self.inputfn = fn
 
     def invalid(self, fn):
-        pass # TODO
+        self.invalidfn = fn
 
     def for_command(self, cmd):
-        pass # TODO
+        def decorator(fn):
+            self.dispatch[cmd] = fn
+        return decorator
 
     def run(self):
-        pass # TODO
+        while True:
+            args = self.inputfn(self.prompt)
+            self.dispatch.get(args[0], self.invalidfn)(*args)
+
+
 

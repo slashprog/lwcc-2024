@@ -10,6 +10,12 @@ def list_dir(*args, **kwargs): # ls
         for f in os.listdir(arg):
             print(f)
 
+@shell.for_command("mkdir")
+def create_directory(*args):
+    import os
+    for d in args[1:]:
+        os.mkdir(d)
+
 @shell.for_command("date")
 def print_date(*args, **kwargs): # date
     from time import ctime
@@ -25,12 +31,12 @@ def invalid_command(*args, **kwargs):
     print("Invalid command -", args[0])
 
 @shell.for_command("pwd")
-def get_currdir(*args, **kwargs): # pwd
+def get_currdir(*args): # pwd
     import os
     print(os.getcwd())
 
 @shell.for_command("exit")
-def exit_shell(*args, **kwargs): # exit
+def exit_shell(*args): # exit
     exit(0)
 
 @shell.input
@@ -41,4 +47,3 @@ def get_input(prompt):
 if __name__ == '__main__':
 
     shell.run()
-    
