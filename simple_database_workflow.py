@@ -11,7 +11,7 @@ CREATE_STUDENTS = """
 """
 
 INSERT_STUDENT = """
-    INSERT INTO students(name, grade, score) VALUES(?,?,?)
+    INSERT INTO students(name, grade) VALUES(?,?)
 """
 
 SELECT_STUDENTS = """
